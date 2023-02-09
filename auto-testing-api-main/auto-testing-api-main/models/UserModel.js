@@ -4,6 +4,10 @@
 // 1.引入mongoose
 const mongoose = require('mongoose')
 const md5 = require('blueimp-md5')
+const moment = require("moment");
+
+const date = new Date();
+const formattedDate = moment(date).format("YYYY-MM-DD HH:mm:ss");
 
 // 2.字义Schema(描述文档结构)
 const userSchema = new mongoose.Schema({
@@ -11,7 +15,7 @@ const userSchema = new mongoose.Schema({
   password: {type: String, required: true}, // 密码
   phone: String,
   email: String,
-  create_time: {type: Number, default: Date.now},
+  create_time: {type: String, default: formattedDate},
   role_id: String,
   clientId: {type: String, required: true}
 })

@@ -45,12 +45,12 @@ const userLogin = async (req, res, next) => {
                 if (user.role_id) {
                     const role = await RoleModel.findOne({_id: user.role_id});
                     logger.info(`login success, ${user.username}`);
-                    return res.status(200).json({success: true, data: {id: user._id, username, role, accessToken, refreshToken}});
+                    return res.status(200).json({success: true, data: {username,accessToken, refreshToken}});
                 } else {
                     const role= {menus: []}
                     // 返回登陆成功信息(包含user)
                     logger.info(`login successful, ${user.username}`);
-                    return res.status(200).json({success: true, data: {id: user._id, username, role, accessToken, refreshToken}});
+                    return res.status(200).json({success: true, data: {username, accessToken, refreshToken}});
                 }
             } else {
                 //logger.warn('login failed, clientId is wrong。');
@@ -95,7 +95,7 @@ const userAdd = async (req, res, next) => {
             const user = await UserModel.findOne({username});
             logger.info(user)
             logger.info(`add user successful, ${user.username}`);
-            return res.status(200).json({success: true, data: user});
+            return res.status(200).json({success: true, data: {username}});
         }
     } catch (err) {
         logger.error(`add user failed, system error。${err}`);
@@ -115,13 +115,22 @@ const userUpdate = async (req, res, next) => {
         }
 
         const user = req.body;
-        logger.info(user)
+        //logger.info(user)
         const oldUser = await UserModel.findOneAndUpdate({_id: user._id}, user);
+        logger.info(Object.keys(user));
+        var dict={};
+        for(const i in Object.keys(user)){
+            var datum=Object.keys(user)[i];
+            if (datum!='password'){
+                dict[datum]=user[datum];}
+            
+        }
+        //logger.info(dict)
         const data = Object.assign(oldUser, user);
-        logger.info(data)
+       
         // 返回
         logger.info(`update user successful, ${user.username}`);
-        return res.status(200).json({success: true, data: data});
+        return res.status(200).json({success: true, data:dict});
     } catch (err) {
         logger.error(`update user failed, system error。${err}`);
         return res.status(500).json({success: false, errors: {errormessage:'update user failed,system error',errorcode:'500'}});
@@ -162,10 +171,32 @@ const userList = async (req, res, next) => {
         }
 
         const users = await UserModel.find({username: {'$ne': 'admin'}});
-        const roles = await RoleModel.find();
-
+        //const roles = await RoleModel.find();
+        //logger.info(Object.keys(users));
+        var dict={};
+        for(const i in Object.keys(users)){
+            var datum=users[i];
+            var dic={};
+            for(const j in Object.keys(datum)){
+            var dat=Object.keys(datum)[j];
+            
+            if(dat=='_doc'){
+                for(const k in Object.keys(datum[dat])){
+                //logger.info(Object.keys(datum[dat]))
+                var dat1= Object.keys(datum[dat])[k];
+                if (dat1!='password' && dat1!="__v"){
+                    dic[dat1]=datum[dat1];}
+                }
+                
+            }
+            }
+            
+        dict[i]=dic;  
+            
+        }
+        logger.info(dict)
         logger.info(`get user list successful.`);
-        return res.status(200).json({success: true, data: {users, roles}});
+        return res.status(200).json({success: true, data: Object.values(dict)});
     } catch (err) {
         logger.error(`get user list failed, system error。${err}`);
         return res.status(500).json({success: false, errors: ['获取用户列表异常, 请重新尝试!']});
