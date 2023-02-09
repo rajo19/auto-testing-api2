@@ -108,24 +108,38 @@ exports.userUpdateValidator =
 
 
 exports.userDeleteValidator = 
-     [
-        check("userId")
-            .exists({checkFalsy: true})
-            .withMessage("User ID is required")
-            .isString()
-            .withMessage("User ID should be string"),
-        (req, res, next) => {
-            const error = validationResult(req).formatWith(({ msg }) => [{msg,errorcode:'422'}]);
+    [
+       check("username")
+           .exists({checkFalsy: true})
+           .withMessage("Username is required"),
+       (req, res, next) => {
+           const error = validationResult(req).formatWith(( {msg} ) => [{msg, errorcode:'400'}]);
+           const hasError = !error.isEmpty();
 
-            const hasError = !error.isEmpty();
+           if (hasError) {
+           res.status(400).json({ error: error.array() });
+           } else {
+           next();
+           }
+       }
+   ];
 
-            if (hasError) {
-            res.status(422).json({ error: error.array() });
-            } else {
-            next();
-            }
-        }
-    ];
+exports.userDeleteByIdValidator = 
+   [
+      check("clientId")
+          .exists({checkFalsy: true})
+          .withMessage("ClientId is required"),
+      (req, res, next) => {
+          const error = validationResult(req).formatWith(( {msg} ) => [{msg, errorcode:'400'}]);
+          const hasError = !error.isEmpty();
+
+          if (hasError) {
+          res.status(400).json({ error: error.array() });
+          } else {
+          next();
+          }
+      }
+  ];
 
 // module.exports = {
 //     userLoginValidator,
