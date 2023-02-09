@@ -45,12 +45,12 @@ const userLogin = async (req, res, next) => {
                 if (user.role_id) {
                     const role = await RoleModel.findOne({_id: user.role_id});
                     logger.info(`login success, ${user.username}`);
-                    return res.status(200).json({success: true, data: {id: user._id, username, role, accessToken, refreshToken}});
+                    return res.status(200).json({success: true, data: {username,accessToken, refreshToken}});
                 } else {
                     const role= {menus: []}
                     // 返回登陆成功信息(包含user)
                     logger.info(`login successful, ${user.username}`);
-                    return res.status(200).json({success: true, data: {id: user._id, username, role, accessToken, refreshToken}});
+                    return res.status(200).json({success: true, data: {username, accessToken, refreshToken}});
                 }
             } else {
                 //logger.warn('login failed, clientId is wrong。');
@@ -95,7 +95,7 @@ const userAdd = async (req, res, next) => {
             const user = await UserModel.findOne({username});
             logger.info(user)
             logger.info(`add user successful, ${user.username}`);
-            return res.status(200).json({success: true, data: user});
+            return res.status(200).json({success: true, data: {username}});
         }
     } catch (err) {
         logger.error(`add user failed, system error。${err}`);
@@ -196,7 +196,7 @@ const userList = async (req, res, next) => {
         }
         logger.info(dict)
         logger.info(`get user list successful.`);
-        return res.status(200).json({success: true, data: {dict}});
+        return res.status(200).json({success: true, data: Object.values(dict)});
     } catch (err) {
         logger.error(`get user list failed, system error。${err}`);
         return res.status(500).json({success: false, errors: ['获取用户列表异常, 请重新尝试!']});
